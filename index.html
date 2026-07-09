@@ -154,6 +154,13 @@
   @media (max-width:860px){ .about-grid{ grid-template-columns:1fr; } }
   .about-grid p{ color:var(--muted); margin-bottom:16px; font-size:15.5px; }
   .spec-block{ border:1px solid var(--line-soft); border-radius:8px; padding:22px; background:var(--bg-1); align-self:start; }
+  .photo-block{ margin-bottom:18px; }
+  .photo-frame{ border:1px solid var(--line-soft); border-radius:8px; overflow:hidden; aspect-ratio:4/5; background:var(--bg-2); position:relative; }
+  .photo-frame::before, .photo-frame::after{ content:''; position:absolute; width:14px; height:14px; border:1px solid var(--amber); opacity:.7; }
+  .photo-frame::before{ top:8px; left:8px; border-right:none; border-bottom:none; }
+  .photo-frame::after{ bottom:8px; right:8px; border-left:none; border-top:none; }
+  .photo-frame img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .photo-caption{ font-size:10.5px; color:var(--muted); text-align:center; letter-spacing:.06em; margin-top:8px; text-transform:uppercase; }
   .spec-row{ display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px solid var(--line-soft); font-size:13px; }
   .spec-row:last-child{ border-bottom:none; }
   .spec-row .k{ font-family:'IBM Plex Mono'; color:var(--muted); letter-spacing:.04em; }
@@ -348,11 +355,19 @@
           <p>I'm a final-year B.Sc. student in Electrical &amp; Electronic Engineering at AIUB with a strong focus on embedded systems, robotics, and intelligent autonomous systems. I lead multidisciplinary teams through high-stakes engineering competitions and have a track record of shipping award-winning hardware-software projects from concept to deployment.</p>
           <p>My work spans assistive technology for the visually impaired, AI-powered autonomous rovers and UAVs built for international competitions, and nanomaterials research into semiconductor and renewable-energy applications.</p>
         </div>
-        <div class="spec-block">
-          <div class="spec-row"><span class="k mono">STATUS</span><span class="v">Final-Year Student</span></div>
-          <div class="spec-row"><span class="k mono">INSTITUTION</span><span class="v">AIUB, Dhaka</span></div>
-          <div class="spec-row"><span class="k mono">FOCUS</span><span class="v">Embedded · Robotics · AI Hardware</span></div>
-          <div class="spec-row"><span class="k mono">BASE</span><span class="v">Dhaka, Bangladesh</span></div>
+        <div>
+          <div class="photo-block" id="photoBlock">
+            <div class="photo-frame">
+              <img src="WhatsApp%20Image%202026-07-05%20at%202.44.59%20AM.jpeg" alt="Nur Hossen Asif" onerror="document.getElementById('photoBlock').style.display='none'">
+            </div>
+            <div class="photo-caption mono">FIG. 01 — N. H. ASIF</div>
+          </div>
+          <div class="spec-block">
+            <div class="spec-row"><span class="k mono">STATUS</span><span class="v">Final-Year Student</span></div>
+            <div class="spec-row"><span class="k mono">INSTITUTION</span><span class="v">AIUB, Dhaka</span></div>
+            <div class="spec-row"><span class="k mono">FOCUS</span><span class="v">Embedded · Robotics · AI Hardware</span></div>
+            <div class="spec-row"><span class="k mono">BASE</span><span class="v">Dhaka, Bangladesh</span></div>
+          </div>
         </div>
       </div>
     </div>
