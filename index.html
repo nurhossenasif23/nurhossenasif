@@ -9,20 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root[data-theme="blueprint"]{
-    --ink:#EAF3FB; --ink-dim:#B9D3E8;
-    --bg:#0A3355; --bg-1:#0C3B61; --bg-2:#0F4670;
+    --ink:#EAF3FB; --ink-dim:#C3DAEC;
+    --bg:#0A3355; --bg-1:#0C3B61; --bg-2:#0F4670; --bg-alt:#0B3A60;
     --line:#3E7CA6; --line-soft:#2A5A80;
-    --muted:#8FB4D1;
+    --muted:#9EC0DB;
     --amber:#FFB020; --amber-ink:#241300;
-    --shadow: rgba(3,15,26,0.45);
+    --shadow: rgba(3,15,26,0.45); --amber-glow: rgba(255,176,32,0.18);
   }
   :root[data-theme="diazo"]{
     --ink:#0F3A5E; --ink-dim:#2C567A;
-    --bg:#EFE9DA; --bg-1:#F6F1E4; --bg-2:#FBF8EF;
+    --bg:#EFE9DA; --bg-1:#F6F1E4; --bg-2:#FBF8EF; --bg-alt:#F2ECDD;
     --line:#B7A788; --line-soft:#D8CDB4;
-    --muted:#6B7C6A;
+    --muted:#5D7061;
     --amber:#C6631E; --amber-ink:#FFF6EA;
-    --shadow: rgba(80,70,40,0.18);
+    --shadow: rgba(80,70,40,0.18); --amber-glow: rgba(198,99,30,0.14);
   }
 
   *{ margin:0; padding:0; box-sizing:border-box; }
@@ -30,11 +30,23 @@
   @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
 
   body{
-    background:var(--bg); color:var(--ink);
+    background-color:var(--bg); color:var(--ink);
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 46px 46px;
+    background-attachment: fixed;
     font-family:'IBM Plex Sans', sans-serif;
     line-height:1.65;
-    transition: background .4s ease, color .4s ease;
+    transition: background-color .4s ease, color .4s ease;
+    opacity:1;
   }
+  :root[data-theme="blueprint"] body{ background-image:
+      linear-gradient(rgba(234,243,251,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(234,243,251,0.035) 1px, transparent 1px); }
+  :root[data-theme="diazo"] body{ background-image:
+      linear-gradient(rgba(15,58,94,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15,58,94,0.05) 1px, transparent 1px); }
 
   a{ color:inherit; }
   ::selection{ background:var(--amber); color:var(--amber-ink); }
@@ -96,17 +108,47 @@
   .menu-btn{ display:none; flex-direction:column; gap:4px; background:none; border:none; cursor:pointer; padding:6px; }
   .menu-btn span{ width:20px; height:2px; background:var(--ink); display:block; }
   @media (max-width:860px){
-    .docnav{ display:none; }
     .menu-btn{ display:flex; }
-    .docnav.open{
+    .docnav{
       display:flex; flex-direction:column; position:absolute; top:100%; left:0; right:0;
-      background:var(--bg-1); padding:16px 28px 20px; gap:14px; border-bottom:1px solid var(--line-soft);
+      background:var(--bg-1); padding:0 28px; gap:14px; border-bottom:1px solid var(--line-soft);
+      max-height:0; overflow:hidden; opacity:0; pointer-events:none;
+      transition:max-height .35s ease, opacity .3s ease, padding .35s ease;
     }
+    .docnav.open{ max-height:420px; opacity:1; padding:16px 28px 20px; pointer-events:auto; }
   }
 
   /* ================= sheet / section shell ================= */
   .sheet{ padding:88px 0; border-bottom:1px solid var(--line-soft); position:relative; }
   .sheet.hero{ padding-top:64px; border-bottom:1px solid var(--line-soft); }
+  main > .sheet:nth-of-type(even){ background:color-mix(in srgb, var(--bg-alt) 100%, transparent); }
+
+  /* ---------- reveal-on-scroll ---------- */
+  .reveal{ opacity:0; transform:translateY(22px); transition:opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1); }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){ .reveal{ opacity:1; transform:none; transition:none; } }
+
+  /* ---------- back to top ---------- */
+  .to-top{
+    position:fixed; right:22px; bottom:22px; z-index:70;
+    width:44px; height:44px; border-radius:50%; border:1px solid var(--line);
+    background:var(--bg-1); color:var(--amber); font-size:18px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transform:translateY(8px);
+    transition:opacity .3s ease, transform .3s ease, border-color .2s;
+    box-shadow:0 6px 20px var(--shadow);
+  }
+  .to-top.show{ opacity:1; pointer-events:auto; transform:translateY(0); }
+  .to-top:hover{ border-color:var(--amber); }
+
+  /* ---------- hero scroll cue ---------- */
+  .scroll-cue{ display:flex; flex-direction:column; align-items:center; gap:6px; margin-top:48px; opacity:.6; }
+  .scroll-cue span{ width:1px; height:26px; background:var(--line); position:relative; overflow:hidden; }
+  .scroll-cue span::after{ content:''; position:absolute; top:-100%; left:0; width:100%; height:100%; background:var(--amber); animation:cue 1.8s ease-in-out infinite; }
+  .scroll-cue b{ font-family:'IBM Plex Mono'; font-size:9.5px; letter-spacing:.12em; color:var(--muted); font-weight:400; text-transform:uppercase; }
+  @keyframes cue{ 0%{ top:-100%; } 60%{ top:100%; } 100%{ top:100%; } }
+  @media (prefers-reduced-motion: reduce){ .scroll-cue span::after{ animation:none; top:0; } }
+  @media (max-width:900px){ .scroll-cue{ display:none; } }
 
   .divider{ display:flex; align-items:baseline; gap:14px; margin-bottom:44px; flex-wrap:wrap; }
   .divider .tick{ width:26px; height:1px; background:var(--line); flex-shrink:0; }
@@ -118,6 +160,13 @@
   .lede{ color:var(--muted); max-width:680px; margin-bottom:36px; font-size:15.5px; }
 
   /* ================= hero ================= */
+  .hero{ overflow:hidden; }
+  .hero::before{
+    content:''; position:absolute; top:-15%; right:-8%; width:55%; height:75%;
+    background:radial-gradient(circle, var(--amber-glow), transparent 70%);
+    pointer-events:none; z-index:0; filter:blur(6px);
+  }
+  .hero .wrap{ position:relative; z-index:1; }
   .hero-eyebrow{
     display:inline-flex; align-items:center; gap:8px;
     font-family:'IBM Plex Mono'; font-size:11.5px; letter-spacing:.08em; color:var(--amber);
@@ -141,13 +190,16 @@
   .btn-ghost:hover{ border-color:var(--amber); color:var(--amber); }
 
   .stat-register{ display:grid; grid-template-columns:repeat(4,1fr); border:1px solid var(--line-soft); border-radius:8px; overflow:hidden; }
-  .stat-cell{ padding:18px 16px; border-right:1px solid var(--line-soft); background:var(--bg-1); }
+  .stat-cell{ padding:18px 16px; border-right:1px solid var(--line-soft); background:var(--bg-1); transition:background .2s; }
+  .stat-cell:hover{ background:var(--bg-2); }
   .stat-cell:last-child{ border-right:none; }
   .stat-num{ font-family:'Big Shoulders Display'; font-size:34px; font-weight:800; color:var(--amber); display:block; line-height:1; }
   .stat-lbl{ font-family:'IBM Plex Mono'; font-size:10px; letter-spacing:.04em; color:var(--muted); margin-top:6px; text-transform:uppercase; }
   @media (max-width:640px){ .stat-register{ grid-template-columns:repeat(2,1fr); } .stat-cell{ border-bottom:1px solid var(--line-soft); } }
 
-  .chip-art{ width:100%; max-width:340px; margin:0 auto; }
+  .chip-art{ width:100%; max-width:340px; margin:0 auto; animation:chipfloat 6s ease-in-out infinite; }
+  @keyframes chipfloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
+  @media (prefers-reduced-motion: reduce){ .chip-art{ animation:none; } }
 
   /* ================= about ================= */
   .about-grid{ display:grid; grid-template-columns:1.5fr 1fr; gap:44px; }
@@ -155,7 +207,8 @@
   .about-grid p{ color:var(--muted); margin-bottom:16px; font-size:15.5px; }
   .spec-block{ border:1px solid var(--line-soft); border-radius:8px; padding:22px; background:var(--bg-1); align-self:start; }
   .photo-block{ margin-bottom:18px; }
-  .photo-frame{ border:1px solid var(--line-soft); border-radius:8px; overflow:hidden; aspect-ratio:4/5; background:var(--bg-2); position:relative; }
+  .photo-frame{ border:1px solid var(--line-soft); border-radius:8px; overflow:hidden; aspect-ratio:4/5; background:var(--bg-2); position:relative; box-shadow:0 10px 28px var(--shadow); transition:transform .3s ease, box-shadow .3s ease; }
+  .photo-block:hover .photo-frame{ transform:translateY(-4px); box-shadow:0 18px 38px var(--shadow); }
   .photo-frame::before, .photo-frame::after{ content:''; position:absolute; width:14px; height:14px; border:1px solid var(--amber); opacity:.7; }
   .photo-frame::before{ top:8px; left:8px; border-right:none; border-bottom:none; }
   .photo-frame::after{ bottom:8px; right:8px; border-left:none; border-top:none; }
@@ -196,8 +249,8 @@
   /* ================= cards (projects / research / press) ================= */
   .card-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(320px,1fr)); gap:22px; }
 
-  .dcard{ border:1px solid var(--line-soft); border-radius:8px; background:var(--bg-1); overflow:hidden; transition:border-color .2s, transform .2s; }
-  .dcard:hover{ border-color:var(--line); }
+  .dcard{ border:1px solid var(--line-soft); border-radius:8px; background:var(--bg-1); overflow:hidden; box-shadow:0 2px 10px var(--shadow); transition:border-color .25s, transform .25s ease, box-shadow .25s ease; }
+  .dcard:hover{ border-color:var(--amber); transform:translateY(-4px); box-shadow:0 16px 34px var(--shadow); }
   .dcard-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding:20px 22px 0; }
   .dcard-pn{ font-family:'IBM Plex Mono'; font-size:10.5px; color:var(--muted); letter-spacing:.05em; }
   .dcard-status{ font-family:'IBM Plex Mono'; font-size:10px; letter-spacing:.04em; padding:3px 9px; border-radius:100px; border:1px solid var(--amber); color:var(--amber); white-space:nowrap; text-transform:uppercase; }
@@ -221,8 +274,11 @@
   .type-ongoing{ border:1px solid var(--muted); color:var(--muted); }
 
   /* press */
-  .press-card{ border:1px solid var(--line-soft); border-radius:8px; background:var(--bg-1); padding:22px; display:flex; flex-direction:column; gap:10px; }
+  .press-card{ border:1px solid var(--line-soft); border-radius:8px; background:var(--bg-1); padding:22px; display:flex; flex-direction:column; gap:10px; box-shadow:0 2px 10px var(--shadow); transition:transform .25s ease, box-shadow .25s ease, border-color .25s; }
+  .press-card:hover{ transform:translateY(-4px); box-shadow:0 16px 34px var(--shadow); border-color:var(--amber); }
   .press-src{ display:flex; justify-content:space-between; align-items:center; font-family:'IBM Plex Mono'; font-size:11px; color:var(--amber); letter-spacing:.04em; text-transform:uppercase; }
+  .press-top{ display:flex; align-items:center; gap:10px; }
+  .press-mono{ width:30px; height:30px; border-radius:50%; background:var(--amber-glow); color:var(--amber); font-family:'IBM Plex Mono'; font-weight:700; font-size:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .press-card h3{ font-size:18px; font-family:'IBM Plex Sans'; font-weight:700; text-transform:none; line-height:1.3; }
   .press-card h3 a{ text-decoration:none; color:var(--ink); }
   .press-card h3 a:hover{ color:var(--amber); }
@@ -232,8 +288,11 @@
 
   /* achievements */
   .ach-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:18px; }
-  .ach-card{ border:1px solid var(--line-soft); border-radius:8px; background:var(--bg-1); padding:22px; text-align:center; }
-  .ach-icon{ width:44px; height:44px; margin:0 auto 14px; }
+  .ach-card{ border:1px solid var(--line-soft); border-radius:8px; background:var(--bg-1); padding:26px 22px; text-align:center; box-shadow:0 2px 10px var(--shadow); transition:transform .25s ease, box-shadow .25s ease, border-color .25s; }
+  .ach-card:hover{ transform:translateY(-4px); box-shadow:0 16px 34px var(--shadow); border-color:var(--amber); }
+  .ach-card.featured{ border-color:var(--amber); background:linear-gradient(180deg, color-mix(in srgb, var(--amber) 8%, var(--bg-1)), var(--bg-1)); }
+  .ach-icon{ width:56px; height:56px; margin:0 auto 16px; border-radius:50%; background:var(--amber-glow); display:flex; align-items:center; justify-content:center; }
+  .ach-icon svg{ width:26px; height:26px; }
   .ach-card h3{ font-size:17px; font-family:'IBM Plex Sans'; text-transform:none; font-weight:700; margin-bottom:6px; }
   .ach-card p{ color:var(--muted); font-size:12.5px; }
 
@@ -321,6 +380,7 @@
           <div class="stat-cell"><span class="stat-num" data-target="4">0</span><span class="stat-lbl">Awards Won</span></div>
           <div class="stat-cell"><span class="stat-num" data-target="14">0</span><span class="stat-lbl">Countries Competed In</span></div>
         </div>
+        <div class="scroll-cue" aria-hidden="true"><span></span><b>Scroll</b></div>
       </div>
       <div>
         <svg class="chip-art" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -349,13 +409,13 @@
   <!-- ================= ABOUT ================= -->
   <section class="sheet" id="about" data-sheet="02">
     <div class="wrap">
-      <div class="divider"><span class="tick"></span><span class="num">SHEET 02</span><h2>About</h2><span class="desc">WHO'S BEHIND THE SILICON</span></div>
+      <div class="divider reveal"><span class="tick"></span><span class="num">SHEET 02</span><h2>About</h2><span class="desc">WHO'S BEHIND THE SILICON</span></div>
       <div class="about-grid">
-        <div>
+        <div class="reveal">
           <p>I'm a final-year B.Sc. student in Electrical &amp; Electronic Engineering at AIUB with a strong focus on embedded systems, robotics, and intelligent autonomous systems. I lead multidisciplinary teams through high-stakes engineering competitions and have a track record of shipping award-winning hardware-software projects from concept to deployment.</p>
           <p>My work spans assistive technology for the visually impaired, AI-powered autonomous rovers and UAVs built for international competitions, and nanomaterials research into semiconductor and renewable-energy applications.</p>
         </div>
-        <div>
+        <div class="reveal">
           <div class="photo-block" id="photoBlock">
             <div class="photo-frame">
               <img src="WhatsApp%20Image%202026-07-05%20at%202.44.59%20AM.jpeg" alt="Nur Hossen Asif" onerror="document.getElementById('photoBlock').style.display='none'">
@@ -376,22 +436,22 @@
   <!-- ================= EDUCATION ================= -->
   <section class="sheet" id="education" data-sheet="03">
     <div class="wrap">
-      <div class="divider"><span class="tick"></span><span class="num">SHEET 03</span><h2>Education</h2><span class="desc">ACADEMIC RECORD</span></div>
+      <div class="divider reveal"><span class="tick"></span><span class="num">SHEET 03</span><h2>Education</h2><span class="desc">ACADEMIC RECORD</span></div>
       <div class="rail">
-        <div class="rail-item">
+        <div class="rail-item reveal">
           <div class="rail-date mono">2023 — PRESENT</div>
           <h3>American International University-Bangladesh (AIUB)</h3>
           <div class="field">B.Sc. in Electrical &amp; Electronic Engineering (EEE)</div>
           <span class="rail-tag">CGPA 3.76 / 4.00</span>
           <span class="rail-tag">Dean's List — Fall 24-25 &amp; Spring 23-24</span>
         </div>
-        <div class="rail-item">
+        <div class="rail-item reveal">
           <div class="rail-date mono">2022</div>
           <h3>Nirjhor Cantonment Public School &amp; College</h3>
           <div class="field">Higher Secondary Certificate (HSC)</div>
           <span class="rail-tag">GPA 5.00 / 5.00</span>
         </div>
-        <div class="rail-item">
+        <div class="rail-item reveal">
           <div class="rail-date mono">2020</div>
           <h3>Govt. Mohammadpur Model School &amp; College</h3>
           <div class="field">Secondary School Certificate (SSC)</div>
@@ -404,7 +464,7 @@
   <!-- ================= SKILLS ================= -->
   <section class="sheet" id="skills" data-sheet="04">
     <div class="wrap">
-      <div class="divider"><span class="tick"></span><span class="num">SHEET 04</span><h2>Capability Register</h2><span class="desc">TOOLS &amp; PROFICIENCY</span></div>
+      <div class="divider reveal"><span class="tick"></span><span class="num">SHEET 04</span><h2>Capability Register</h2><span class="desc">TOOLS &amp; PROFICIENCY</span></div>
       <div class="skill-filters" id="skillFilters">
         <button class="chip active" data-filter="all">All</button>
         <button class="chip" data-filter="embedded">Embedded &amp; MCU</button>
@@ -419,7 +479,7 @@
   <!-- ================= PROJECTS ================= -->
   <section class="sheet" id="projects" data-sheet="05">
     <div class="wrap">
-      <div class="divider"><span class="tick"></span><span class="num">SHEET 05</span><h2>Featured Projects</h2><span class="desc">FROM ROVERS TO WEARABLES</span></div>
+      <div class="divider reveal"><span class="tick"></span><span class="num">SHEET 05</span><h2>Featured Projects</h2><span class="desc">FROM ROVERS TO WEARABLES</span></div>
       <p class="lede">From autonomous rovers to assistive wearables — engineering solutions built to work in the field, not just the lab. Click a card for the full spec.</p>
       <div class="card-grid" id="projectGrid"></div>
     </div>
@@ -428,7 +488,7 @@
   <!-- ================= RESEARCH ================= -->
   <section class="sheet" id="research" data-sheet="06">
     <div class="wrap">
-      <div class="divider"><span class="tick"></span><span class="num">SHEET 06</span><h2>Research &amp; Publications</h2><span class="desc">MATERIALS SCIENCE &amp; NANOTECH</span></div>
+      <div class="divider reveal"><span class="tick"></span><span class="num">SHEET 06</span><h2>Research &amp; Publications</h2><span class="desc">MATERIALS SCIENCE &amp; NANOTECH</span></div>
       <div class="card-grid" id="researchGrid"></div>
     </div>
   </section>
@@ -436,7 +496,7 @@
   <!-- ================= PRESS ================= -->
   <section class="sheet" id="press" data-sheet="07">
     <div class="wrap">
-      <div class="divider"><span class="tick"></span><span class="num">SHEET 07</span><h2>Press &amp; Recognition</h2><span class="desc">EXTERNAL COVERAGE</span></div>
+      <div class="divider reveal"><span class="tick"></span><span class="num">SHEET 07</span><h2>Press &amp; Recognition</h2><span class="desc">EXTERNAL COVERAGE</span></div>
       <div class="card-grid" id="pressGrid"></div>
       <p class="press-note">Coverage list current as of July 2026 — more to be added as it comes in.</p>
     </div>
@@ -445,7 +505,7 @@
   <!-- ================= AWARDS ================= -->
   <section class="sheet" id="awards" data-sheet="08">
     <div class="wrap">
-      <div class="divider"><span class="tick"></span><span class="num">SHEET 08</span><h2>Achievements &amp; Awards</h2><span class="desc">RECOGNITION LOG</span></div>
+      <div class="divider reveal"><span class="tick"></span><span class="num">SHEET 08</span><h2>Achievements &amp; Awards</h2><span class="desc">RECOGNITION LOG</span></div>
       <div class="ach-grid" id="achGrid"></div>
     </div>
   </section>
@@ -453,7 +513,7 @@
   <!-- ================= CONTACT ================= -->
   <section class="sheet" id="contact" data-sheet="09" style="border-bottom:none;">
     <div class="wrap">
-      <div class="divider"><span class="tick"></span><span class="num">SHEET 09</span><h2>Contact</h2><span class="desc">LET'S BUILD SOMETHING</span></div>
+      <div class="divider reveal"><span class="tick"></span><span class="num">SHEET 09</span><h2>Contact</h2><span class="desc">LET'S BUILD SOMETHING</span></div>
       <div class="contact-grid">
         <div>
           <p class="lede" style="margin-bottom:24px;">Interested in collaborating, hiring, or covering the work? Here's the full pinout.</p>
@@ -491,6 +551,8 @@
   </div>
 </footer>
 
+<button class="to-top" id="toTop" aria-label="Back to top">↑</button>
+
 <script>
 (function(){
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -517,15 +579,22 @@
     a.addEventListener('click', function(){ docnav.classList.remove('open'); });
   });
 
-  /* ---------- scroll progress + sheet tracker ---------- */
+  /* ---------- scroll progress + sheet tracker + back-to-top ---------- */
   var fill = document.getElementById('progressFill');
+  var toTop = document.getElementById('toTop');
   function onScroll(){
     var h = document.documentElement;
     var pct = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
     fill.style.width = (isFinite(pct) ? pct : 0) + '%';
+    if(toTop){ toTop.classList.toggle('show', h.scrollTop > window.innerHeight * 0.6); }
   }
   window.addEventListener('scroll', onScroll, { passive:true });
   onScroll();
+  if(toTop){
+    toTop.addEventListener('click', function(){
+      window.scrollTo({ top:0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    });
+  }
 
   var sheets = Array.prototype.slice.call(document.querySelectorAll('.sheet'));
   var total = sheets.length;
@@ -619,7 +688,7 @@
     var cat = '';
     for(var gi=0; gi<skillsData.length; gi++){ if(skillsData[gi].group === g){ cat = skillsData[gi].cat; break; } }
     var block = document.createElement('div');
-    block.className = 'skill-cat';
+    block.className = 'skill-cat reveal';
     block.setAttribute('data-cat', cat);
     var rows = skillsData.filter(function(s){ return s.group === g; }).map(function(s){
       return '<div class="skill-row"><span class="skill-name">'+s.name+'</span><div class="bitbar">'+bitbar(s.pct)+'</div><span class="skill-pct mono">'+s.pct+'%</span></div>';
@@ -659,9 +728,10 @@
       detail:'Directing autonomous navigation pipelines and multi-sensor integration for URC, ARC, CIRC, and ERC. Team site: redfrontierbd.com' }
   ];
   var projectGrid = document.getElementById('projectGrid');
-  projects.forEach(function(p){
+  projects.forEach(function(p, i){
     var el = document.createElement('details');
-    el.className = 'dcard';
+    el.className = 'dcard reveal';
+    el.style.transitionDelay = (i * 70) + 'ms';
     el.innerHTML =
       '<summary>' +
         '<div class="dcard-head"><span class="dcard-pn mono">PN '+p.pn+'</span><span class="dcard-status">'+p.status+'</span></div>' +
@@ -685,9 +755,10 @@
       desc:'Comparative structural and optical analysis of Al-doped SrO nanoparticles against Zn-doped variants.' }
   ];
   var researchGrid = document.getElementById('researchGrid');
-  research.forEach(function(r){
+  research.forEach(function(r, i){
     var el = document.createElement('div');
-    el.className = 'dcard';
+    el.className = 'dcard reveal';
+    el.style.transitionDelay = (i * 70) + 'ms';
     el.innerHTML =
       '<div style="padding:20px 22px 0;"><span class="research-type '+r.typeClass+'">'+r.type+'</span></div>' +
       '<h3>'+r.title+'</h3>' +
@@ -698,30 +769,32 @@
 
   /* ---------- press data + render (verified, real coverage only) ---------- */
   var press = [
-    { source:'The Daily Star', date:'22 May 2025', title:'Team from Bangladesh wins Gold Medal at WSEEC 2025',
+    { source:'The Daily Star', mono:'TDS', date:'22 May 2025', title:'Team from Bangladesh wins Gold Medal at WSEEC 2025',
       url:'https://www.thedailystar.net/tech-startup/news/team-bangladesh-wins-gold-medal-wseec-2025-3900801',
       summary:'The Daily Star reported on Team System Error\u2019s Gold Medal and Special Award for sustainable-impact innovation at WSEEC 2025 in Jakarta, for their Green Rover autonomous waste-management robot. Nur Hossen Asif was named as one of the four students on the award-winning team.' },
-    { source:'The Daily Star', date:'5 Apr 2024', title:'Team Atlas from Bangladesh reaches finals of Australian Rover Challenge 2024',
+    { source:'The Daily Star', mono:'TDS', date:'5 Apr 2024', title:'Team Atlas from Bangladesh reaches finals of Australian Rover Challenge 2024',
       url:'https://www.thedailystar.net/tech-startup/news/team-atlas-bangladesh-reaches-finals-australian-rover-challenge-2024-3582541',
       summary:'The Daily Star covered Team Atlas\u2019s 9th-place finish among 14 global finalists at the 2024 Australian Rover Challenge in Adelaide, highlighting the team\u2019s dual rover chassis and roughly 1.2 m/s top speed. Nur Hossen Asif was part of the multi-university Bangladeshi squad.' },
-    { source:'AIUB News', date:'29 May 2025', title:'AIUB Students Win Gold Medal and IYSA Special Award at WSEEC 2025',
+    { source:'AIUB News', mono:'AIUB', date:'29 May 2025', title:'AIUB Students Win Gold Medal and IYSA Special Award at WSEEC 2025',
       url:'https://www.aiub.edu/-aiub-students-win-gold-medal-and-iysa-special-award-at-wseec-2025',
       summary:'AIUB\u2019s own news office profiled the same WSEEC 2025 win, crediting faculty mentor Dr. Mohammad Nasir Uddin\u2019s guidance and noting the team competed among 293 entries from 14 countries at Universitas Pancasila.' },
-    { source:'AIUB News', date:'4 Aug 2025', title:'AIUB Students Crowned Champions in \u201cCircuit Solving Contest\u201d of Electronics Fest',
+    { source:'AIUB News', mono:'AIUB', date:'4 Aug 2025', title:'AIUB Students Crowned Champions in \u201cCircuit Solving Contest\u201d of Electronics Fest',
       url:'https://www.aiub.edu/aiub-students-crowned-champions-in-circuit-solving-contest-of-electronics-fest-',
       summary:'AIUB covered Team Short Circuit\u2019s win at East West University\u2019s Electronics Fest, where Nur Hossen Asif and three teammates topped a three-round scoring contest to take the championship title.' }
   ];
   var pressGrid = document.getElementById('pressGrid');
-  press.forEach(function(p){
+  press.forEach(function(p, i){
     var el = document.createElement('div');
-    el.className = 'press-card';
+    el.className = 'press-card reveal';
+    el.style.transitionDelay = (i * 70) + 'ms';
     el.innerHTML =
-      '<div class="press-src"><span>'+p.source+'</span><span class="mono">'+p.date+'</span></div>' +
+      '<div class="press-src"><div class="press-top"><span class="press-mono">'+p.mono+'</span><span>'+p.source+'</span></div><span class="mono">'+p.date+'</span></div>' +
       '<h3><a href="'+p.url+'" target="_blank" rel="noopener">'+p.title+'</a></h3>' +
       '<p>'+p.summary+'</p>' +
       '<a class="press-link mono" href="'+p.url+'" target="_blank" rel="noopener">Read article ↗</a>';
     pressGrid.appendChild(el);
   });
+
 
   /* ---------- achievements ---------- */
   var icons = {
@@ -733,7 +806,7 @@
     cap:'<svg viewBox="0 0 44 44" fill="none" stroke="var(--amber)" stroke-width="1.6"><path d="M4 17 L22 9 L40 17 L22 25 Z"/><path d="M12 21 V30 C12 33 30 33 32 30 V21"/><line x1="40" y1="17" x2="40" y2="29"/></svg>'
   };
   var achievements = [
-    { icon:'medal', title:'Gold Medal', desc:'WSEEC 2025, Indonesia · Green Rover Project · 293 teams, 14 countries' },
+    { icon:'medal', title:'Gold Medal', desc:'WSEEC 2025, Indonesia · Green Rover Project · 293 teams, 14 countries', featured:true },
     { icon:'award', title:'IYSA Special Award', desc:'WSEEC 2025 · Innovation in Sustainable Environmental Impact' },
     { icon:'trophy', title:'Champions', desc:'Circuit Solving Contest · Electronics Fest 2025 · Team Short Circuit, East West University' },
     { icon:'star', title:'Global Finalist — 9th/14', desc:'Australian Rover Challenge 2024 · Team Atlas, Electrical Systems' },
@@ -741,9 +814,10 @@
     { icon:'cap', title:'Dean\u2019s List', desc:'AIUB · Fall 2024-25 & Spring 2023-24 · Academic Excellence' }
   ];
   var achGrid = document.getElementById('achGrid');
-  achievements.forEach(function(a){
+  achievements.forEach(function(a, i){
     var el = document.createElement('div');
-    el.className = 'ach-card';
+    el.className = 'ach-card reveal' + (a.featured ? ' featured' : '');
+    el.style.transitionDelay = (i * 60) + 'ms';
     el.innerHTML = '<div class="ach-icon">'+icons[a.icon]+'</div><h3>'+a.title+'</h3><p>'+a.desc+'</p>';
     achGrid.appendChild(el);
   });
@@ -759,6 +833,22 @@
     var mailto = 'mailto:nurhossenasif23@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
     window.location.href = mailto;
   });
+
+  /* ---------- reveal-on-scroll (runs last, after all cards are built) ---------- */
+  var revealEls = document.querySelectorAll('.reveal');
+  if(reduceMotion){
+    Array.prototype.forEach.call(revealEls, function(el){ el.classList.add('in'); });
+  } else {
+    var revealIo = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in');
+          revealIo.unobserve(entry.target);
+        }
+      });
+    }, { threshold:0.1, rootMargin:'0px 0px -60px 0px' });
+    Array.prototype.forEach.call(revealEls, function(el){ revealIo.observe(el); });
+  }
 })();
 </script>
 </body>
